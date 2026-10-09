@@ -338,7 +338,41 @@ body{
 .loading{color:var(--text2);text-align:center;padding:20px;font-size:.85rem;}
 .error{color:var(--up);text-align:center;padding:20px;font-size:.85rem;}
 
-.foot{text-align:center;color:var(--text2);font-size:.75rem;padding:20px 0;}
+.foot{
+  text-align:center;
+  padding:32px 16px 24px;
+  border-top:1px solid var(--border);
+  margin-top:32px;
+}
+.foot-copyright{
+  color:var(--text);
+  font-size:.85rem;
+  font-weight:500;
+  letter-spacing:.5px;
+  margin-bottom:12px;
+}
+.foot-copyright a{
+  color:var(--text);
+  text-decoration:none;
+  border-bottom:1px dashed rgba(230,232,238,.3);
+  padding-bottom:1px;
+  transition:.2s;
+}
+.foot-copyright a:hover{
+  color:var(--accent);
+  border-bottom-color:var(--accent);
+}
+.foot-desc{
+  color:var(--text2);
+  font-size:.75rem;
+  line-height:1.9;
+  margin-bottom:10px;
+}
+.foot-disclaimer{
+  color:#6a7080;
+  font-size:.72rem;
+  letter-spacing:.3px;
+}
 
 @media(max-width:600px){
   .hero h1{font-size:1.3rem;}
@@ -363,6 +397,10 @@ body{
   .sizhu-header{grid-template-columns:48px 1fr 1fr;font-size:.62rem;}
   .sizhu-row{grid-template-columns:48px 1fr 1fr;font-size:.78rem;gap:8px;}
   .bazi-full{flex-direction:column;gap:8px;align-items:flex-start;}
+  .foot{padding:24px 12px 20px;margin-top:24px;}
+  .foot-copyright{font-size:.78rem;}
+  .foot-desc{font-size:.72rem;}
+  .foot-disclaimer{font-size:.68rem;}
 }
 </style>
 </head>
@@ -505,11 +543,20 @@ body{
     </div>
   </div>
 
-  <div class="foot">个人学习项目 · 非商业用途 · 数据仅供参考</div>
+  <div class="foot">
+    <div class="foot-copyright">
+      © 2026 <a href="https://itboy.top" target="_blank" rel="noopener">itboy.top</a> 保留所有权利
+    </div>
+    <div class="foot-desc">
+      个人学习项目 · 非商业用途
+    </div>
+    <div class="foot-disclaimer">
+      数据仅供参考，不构成任何投资建议
+    </div>
+  </div>
 </div>
 
 <script>
-// ★★★ 唯一改动：CF Pages Functions 地址 ★★★
 const API_BASE = 'https://itboy-tools.pages.dev/api';
 
 async function api(action, params){
