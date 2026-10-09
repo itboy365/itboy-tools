@@ -509,7 +509,8 @@ body{
 </div>
 
 <script>
-const API_BASE = 'https://api.itboy.pw';
+// ★★★ 唯一改动：CF Pages Functions 地址 ★★★
+const API_BASE = 'https://itboy-tools.pages.dev/api';
 
 async function api(action, params){
   if (!navigator.onLine) {
@@ -535,7 +536,6 @@ function errMsg(e){
   return '加载失败，请稍后重试';
 }
 
-// 内联提示（方案 A）：在结果区显示错误
 function showInlineError(boxId, msg){
   document.getElementById(boxId).innerHTML = `<div class="error">${msg}</div>`;
 }
@@ -547,7 +547,6 @@ function switchTab(name, el){
   document.getElementById('panel-'+name).classList.add('active');
 }
 
-// 输入框 -> 按钮状态（方案 B：禁用按钮）
 function bindInput(inputId, btnId){
   const inp = document.getElementById(inputId);
   const btn = document.getElementById(btnId);
@@ -561,7 +560,6 @@ bindInput('oil-province-input', 'oil-btn');
 bindInput('trans-text', 'trans-btn');
 bindInput('whois-input', 'whois-btn');
 
-// ============ 本地时间进度 ============
 function localProgress(){
   const d = new Date();
   const y = d.getFullYear(), m = d.getMonth(), day = d.getDate();
@@ -605,7 +603,6 @@ function applyProgress(p){
 }
 localProgress();
 
-// ============ 农历 ============
 async function loadLunar(){
   const content = document.getElementById('lunar-content');
   try {
@@ -792,7 +789,6 @@ function renderLunar(d){
   document.getElementById('lunar-content').innerHTML = html;
 }
 
-// ============ 天气 ============
 function quickWeather(city){
   document.getElementById('weather-city-input').value = city;
   document.getElementById('weather-btn').disabled = false;
@@ -804,9 +800,7 @@ async function renderWeather(){
   const box = document.getElementById('weather-result');
   const btn = document.getElementById('weather-btn');
 
-  // 方案 A：内联提示（兜底）
   if (!city) { showInlineError('weather-result', '请输入城市名'); return; }
-  // 方案 B：防重复提交
   if (btn.disabled) return;
 
   btn.disabled = true;
@@ -857,7 +851,6 @@ async function renderWeather(){
   }
 }
 
-// ============ 60秒 ============
 async function loadNews60(){
   const box = document.getElementById('news60');
   try {
@@ -875,7 +868,6 @@ async function loadNews60(){
   }
 }
 
-// ============ 油价 ============
 function quickOil(province){
   document.getElementById('oil-province-input').value = province;
   document.getElementById('oil-btn').disabled = false;
@@ -913,7 +905,6 @@ async function renderOil(){
   }
 }
 
-// ============ 黄金 ============
 async function loadGold(){
   const box = document.getElementById('gold-result');
   try {
@@ -943,7 +934,6 @@ async function loadGold(){
   }
 }
 
-// ============ 公网 IP ============
 async function loadIP(){
   const box = document.getElementById('ip-card');
   try {
@@ -958,7 +948,6 @@ async function loadIP(){
   }
 }
 
-// ============ 翻译 ============
 async function doTrans(){
   const text = document.getElementById('trans-text').value.trim();
   const to = document.getElementById('trans-to').value;
@@ -986,7 +975,6 @@ async function doTrans(){
   }
 }
 
-// ============ Whois ============
 function translateWhoisStatus(list){
   const map = {
     'client transfer prohibited': '禁止转移',
@@ -1064,7 +1052,6 @@ async function doWhois(){
   }
 }
 
-// ============ 初始化 ============
 window.addEventListener('DOMContentLoaded', () => {
   loadLunar();
   loadNews60();
