@@ -16,7 +16,6 @@ export const onRequest = async (context: any) => {
     return new Response(null, { status: 204, headers: CORS });
   }
 
-  // ★ 从环境变量读上游，没配置就报错
   const UPSTREAM = env.UPSTREAM || '';
   if (!UPSTREAM) {
     return json({ code: 500, message: 'UPSTREAM 环境变量未配置' }, 500);
@@ -25,17 +24,45 @@ export const onRequest = async (context: any) => {
   const url = new URL(request.url);
   const action = url.searchParams.get('action') || '';
 
+  // ★ 参数合法性校验（挡爬虫乱传参破缓存）
+  const invalid = validateParams(action, url);
+  if (invalid) {
+    return json({ code: 400, message: invalid }, 400);
+  }
+
   try {
     let result: any;
     switch (action) {
-      case 'lunar':     result = await proxyGet(UPSTREAM, '/v2/lunar'); break;
-      case 'news60':    result = await proxyGet(UPSTREAM, '/v2/60s'); break;
-      case 'gold':      result = await proxyGet(UPSTREAM, '/v2/gold-price'); break;
-      case 'weather':   result = await handleWeather(UPSTREAM, url.searchParams.get('city') || '北京'); break;
-      case 'oil':       result = await proxyGet(UPSTREAM, '/v2/fuel-price?region=' + encodeURIComponent(url.searchParams.get('region') || '北京')); break;
-      case 'translate': result = await handleTranslate(UPSTREAM, url); break;
-      case 'whois':     result = await proxyGet(UPSTREAM, '/v2/whois?domain=' + encodeURIComponent(url.searchParams.get('domain') || '')); break;
-      case 'ip':        result = await handleIp(request); break;
+      case 'lunar':
+        result = await proxyGet(UPSTREAM, '/v2/lunar');
+        break;
+      case 'news60':
+        result = await proxyGet(UPSTREAM, '/v2/60s');
+        break;
+      case 'gold':
+        result = await proxyGet(UPSTREAM, '/v2/gold-price');
+        break;
+      case 'weather':
+        result = await handleWeather(UPSTREAM, url.searchParams.get('city') || '北京');
+        break;
+      case 'oil':
+        result = await proxyGet(
+          UPSTREAM,
+          '/v2/fuel-price?region=' + encodeURIComponent(url.searchParams.get('region') || '北京')
+        );
+        break;
+      case 'translate':
+        result = await handleTranslate(UPSTREAM, url);
+        break;
+      case 'whois':
+        result = await proxyGet(
+          UPSTREAM,
+          '/v2/whois?domain=' + encodeURIComponent(url.searchParams.get('domain') || '')
+        );
+        break;
+      case 'ip':
+        result = await handleIp(request);
+        break;
       default:
         return json({ code: 400, message: 'unknown action' }, 400);
     }
@@ -44,6 +71,32 @@ export const onRequest = async (context: any) => {
     return json({ code: 500, message: e?.message || 'error' }, 500);
   }
 };
+
+// ★ 参数校验：各 action 允许的格式
+function validateParams(action: string, url: URL): string | null {
+  if (action === 'weather') {
+    const city = url.searchParams.get('city') || '北京';
+    if (city.length > 30) return 'city too long';
+    if (!/^[\u4e00-\u9fa5a-zA-Z][\u4e00-\u9fa5a-zA-Z\s]{0,29}$/.test(city)) return 'invalid city';
+  }
+  if (action === 'oil') {
+    const region = url.searchParams.get('region') || '北京';
+    if (region.length > 20) return 'region too long';
+    if (!/^[\u4e00-\u9fa5]{1,20}$/.test(region)) return 'invalid region';
+  }
+  if (action === 'whois') {
+    const domain = url.searchParams.get('domain') || '';
+    if (!domain) return 'domain required';
+    if (domain.length > 100) return 'domain too long';
+    if (!/^[a-zA-Z0-9.-]+$/.test(domain)) return 'invalid domain';
+  }
+  if (action === 'translate') {
+    const text = url.searchParams.get('text') || '';
+    if (!text) return 'text required';
+    if (text.length > 500) return 'text too long';
+  }
+  return null;
+}
 
 // 通用 GET 代理（带 CF 边缘缓存 5 分钟）
 async function proxyGet(upstream: string, path: string): Promise<any> {
@@ -77,8 +130,8 @@ async function handleTranslate(upstream: string, url: URL): Promise<any> {
   return await proxyGet(
     upstream,
     '/v2/fanyi?text=' + encodeURIComponent(text) +
-    '&from=' + encodeURIComponent(from) +
-    '&to=' + encodeURIComponent(to)
+      '&from=' + encodeURIComponent(from) +
+      '&to=' + encodeURIComponent(to)
   );
 }
 
@@ -89,7 +142,7 @@ async function handleIp(request: Request): Promise<any> {
   try {
     const r = await fetch(
       'http://ip-api.com/json/' + encodeURIComponent(ip) +
-      '?lang=zh-CN&fields=status,country,regionName,city,isp,query',
+        '?lang=zh-CN&fields=status,country,regionName,city,isp,query',
       { cf: { cacheTtl: 1800, cacheEverything: true } as any }
     );
     const j: any = await r.json();
