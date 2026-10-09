@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>itboy 工具箱</title>
+<style>
+:root{
+  --bg:#0f1117; --card:#1a1d28; --card2:#232733;
+  --text:#e6e8ee; --text2:#8b90a0; --border:#2a2f3d;
+  --accent:#4f8cff; --up:#ff4d4f; --down:#00b96b;
+  --gold:#ffd666; --red:#ff6b6b; --green:#00b96b;
+  --radius:14px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+  font-family:'PingFang SC','Microsoft YaHei',sans-serif;
+  background:var(--bg); color:var(--text);
+  min-height:100vh; padding:24px 16px;
+}
+.wrap{max-width:960px;margin:0 auto;}
+
+.hero{
+  background:linear-gradient(135deg,#1e2438,#151827);
+  border:1px solid var(--border); border-radius:var(--radius);
+  padding:28px 24px; text-align:center; margin-bottom:20px;
+}
+.hero h1{font-size:1.6rem;margin-bottom:6px;}
+.hero .subtitle{color:var(--text2);font-size:.85rem;margin-bottom:22px;}
+
+.stats-row{
+  display:flex;justify-content:center;align-items:center;
+  flex-wrap:wrap;
+  font-size:.78rem;color:var(--text2);letter-spacing:1px;
+  margin-bottom:18px; padding-bottom:18px;
+  border-bottom:1px solid rgba(255,255,255,.06);
+}
+.stats-row b{color:var(--accent);font-weight:700;margin:0 3px;}
+.stats-row .sep{display:inline-block;margin:0 12px;opacity:.3;}
+
+.progress-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:12px;
+}
+.progress-item{
+  background:var(--card2);border:1px solid var(--border);
+  border-radius:10px;padding:12px 10px;text-align:center;
+}
+.progress-item .p-label{
+  font-size:.72rem;color:var(--text2);letter-spacing:1px;
+  margin-bottom:10px;
+}
+.progress-item .p-bar{
+  height:6px;border-radius:3px;background:rgba(255,255,255,.06);
+  overflow:hidden;margin-bottom:8px;
+}
+.progress-item .p-bar .p-fill{
+  height:100%;border-radius:3px;
+  background:linear-gradient(90deg,var(--accent),#7cb3ff);
+  transition:width .8s ease;
+}
+.progress-item .p-bar .p-fill.gold{
+  background:linear-gradient(90deg,var(--gold),#ffedb3);
+}
+.progress-item .p-pct{
+  font-size:.9rem;font-weight:700;color:var(--text);
+  font-variant-numeric:tabular-nums;
+}
+
+.tabs{
+  display:flex;gap:4px;margin-bottom:18px;
+  background:var(--card);padding:5px;border-radius:12px;
+  border:1px solid var(--border);
+}
+.tab{
+  flex:1;text-align:center;padding:10px 4px;
+  border-radius:8px;cursor:pointer;font-size:.85rem;
+  color:var(--text2);transition:.2s;user-select:none;
+  white-space:nowrap;
+}
+.tab:hover{color:var(--text);}
+.tab.active{background:var(--accent);color:#fff;font-weight:600;}
+
+.panel{display:none;animation:fade .3s;}
+.panel.active{display:block;}
+@keyframes fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+
+.block{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--radius);padding:18px;margin-bottom:16px;
+}
+.block h2{
+  font-size:1rem;margin-bottom:14px;display:flex;
+  align-items:center;gap:8px;
+}
+.block h2::before{
+  content:'';width:4px;height:16px;background:var(--accent);border-radius:2px;
+}
+
+.search-box{display:flex;gap:10px;margin-bottom:8px;}
+.search-box input,.search-box select{
+  flex:1;padding:10px 14px;border-radius:10px;
+  background:var(--card2);border:1px solid var(--border);
+  color:var(--text);font-size:.9rem;outline:none;min-width:0;
+}
+.search-box input:focus,.search-box select:focus{border-color:var(--accent);}
+.search-box input::placeholder{color:var(--text2);}
+.search-box button{
+  padding:10px 22px;border-radius:10px;border:none;
+  background:var(--accent);color:#fff;font-size:.9rem;
+  font-weight:600;cursor:pointer;white-space:nowrap;
+  transition:opacity .2s,transform .1s;
+}
+.search-box button:hover:not(:disabled){opacity:.9;}
+.search-box button:active:not(:disabled){transform:scale(.97);}
+.search-box button:disabled{opacity:.4;cursor:not-allowed;}
+.search-tip{font-size:.72rem;color:var(--text2);margin-bottom:14px;}
+.search-tip a{color:var(--accent);text-decoration:none;margin:0 2px;}
+.search-tip a:hover{text-decoration:underline;}
+
+.weather-card{
+  background:linear-gradient(135deg,#1e2a45,#1a1d28);
+  border-radius:12px;padding:22px;border:1px solid #2c3956;
+}
+.weather-main{display:flex;align-items:center;justify-content:space-between;gap:16px;}
+.weather-left .city{font-size:.85rem;color:var(--text2);margin-bottom:6px;}
+.weather-left .temp{font-size:2.8rem;font-weight:800;color:var(--accent);line-height:1;}
+.weather-left .temp small{font-size:1.2rem;font-weight:400;margin-left:4px;}
+.weather-left .desc{font-size:.82rem;color:var(--text2);margin-top:8px;}
+.weather-right{font-size:3.5rem;}
+.weather-right img{width:80px;height:80px;}
+.weather-forecast{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:8px;
+  margin-top:14px;padding-top:14px;border-top:1px solid var(--border);
+}
+.weather-forecast .fc{font-size:.8rem;color:var(--text2);text-align:center;}
+.weather-forecast .fc .day{font-size:.72rem;margin-bottom:4px;}
+.weather-forecast .fc .ico{height:32px;display:flex;align-items:center;justify-content:center;}
+.weather-forecast .fc .ico img{width:32px;height:32px;}
+.weather-forecast .fc b{color:var(--text);font-size:.82rem;}
+
+.news-list{display:flex;flex-direction:column;gap:2px;}
+.news-item{
+  display:flex;gap:12px;padding:10px 12px;border-radius:8px;
+  font-size:.88rem;line-height:1.6;transition:.15s;
+}
+.news-item:hover{background:var(--card2);}
+.news-item .idx{
+  flex-shrink:0;width:22px;height:22px;border-radius:6px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:.7rem;font-weight:700;
+  background:rgba(79,140,255,.12);color:var(--accent);
+  margin-top:2px;
+}
+.news-item .text{flex:1;}
+
+.lunar-hero{
+  background:linear-gradient(135deg,#2a2010,#1a1d28);
+  border:1px solid #3a3020;border-radius:14px;
+  padding:32px 24px;text-align:center;
+}
+.lunar-hero .lunar-day{
+  font-size:2.8rem;font-weight:800;color:var(--gold);
+  letter-spacing:4px;line-height:1;margin-bottom:12px;
+}
+.lunar-hero .lunar-year{
+  font-size:.95rem;color:var(--text);letter-spacing:2px;
+}
+
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.item{
+  background:var(--card2);border-radius:10px;padding:14px 8px;
+  border:1px solid var(--border);text-align:center;
+}
+.item .emoji{font-size:1.6rem;margin-bottom:6px;}
+.item .label{font-size:.68rem;color:var(--text2);letter-spacing:1px;margin-bottom:4px;}
+.item .val{font-size:1rem;font-weight:600;color:var(--text);}
+
+.festival-bar{
+  background:linear-gradient(135deg,#2a2010,#1a1d28);
+  border:1px solid #3a3020;border-radius:10px;
+  padding:14px;text-align:center;
+}
+.festival-bar .emoji{font-size:1.3rem;margin-right:6px;}
+.festival-bar .text{color:var(--gold);font-size:.95rem;font-weight:500;letter-spacing:1px;}
+
+.taboo-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.taboo-card{border-radius:10px;padding:14px;}
+.taboo-card.yes{background:rgba(0,185,107,.08);border:1px solid rgba(0,185,107,.25);}
+.taboo-card.no{background:rgba(255,107,107,.08);border:1px solid rgba(255,107,107,.25);}
+.taboo-card .title{font-size:.85rem;font-weight:600;margin-bottom:8px;}
+.taboo-card.yes .title{color:var(--green);}
+.taboo-card.no .title{color:var(--red);}
+.taboo-card .content{font-size:.8rem;color:var(--text);line-height:1.6;}
+
+.hours-list{display:flex;flex-direction:column;}
+.hour-row{
+  display:flex;gap:10px;padding:8px 0;
+  border-bottom:1px dashed var(--border);font-size:.8rem;
+}
+.hour-row:last-child{border-bottom:none;}
+.hour-row .h{color:var(--accent);min-width:100px;flex-shrink:0;font-weight:500;}
+.hour-row .v{color:var(--text);flex:1;line-height:1.5;}
+
+.fortune-row{
+  display:flex;justify-content:space-between;
+  padding:10px 0;border-bottom:1px dashed var(--border);
+  font-size:.85rem;
+}
+.fortune-row:last-child{border-bottom:none;}
+.fortune-row .k{color:var(--text2);}
+.fortune-row .v{font-weight:500;color:var(--text);}
+
+.kv{
+  display:flex;gap:12px;padding:8px 0;
+  border-bottom:1px dashed var(--border);font-size:.84rem;
+}
+.kv:last-child{border-bottom:none;}
+.kv .k{color:var(--text2);min-width:100px;flex-shrink:0;}
+.kv .v{color:var(--text);flex:1;word-break:break-all;}
+
+.sizhu-header{
+  display:grid;grid-template-columns:56px 1fr 1fr;gap:12px;
+  padding:0 0 10px;border-bottom:1px solid var(--border);
+  font-size:.68rem;color:var(--text2);letter-spacing:1px;
+}
+.sizhu-row{
+  display:grid;grid-template-columns:56px 1fr 1fr;gap:12px;
+  padding:10px 0;border-bottom:1px dashed var(--border);
+  font-size:.85rem;align-items:center;
+}
+.sizhu-row:last-of-type{border-bottom:none;}
+.sizhu-row .label{color:var(--text2);letter-spacing:1px;}
+.sizhu-row .gz{color:var(--text);font-weight:500;}
+.sizhu-row .ny{color:var(--accent);font-weight:500;}
+.bazi-full{
+  margin-top:14px;padding-top:14px;
+  border-top:1px solid var(--border);
+  display:flex;justify-content:space-between;align-items:center;
+  font-size:.85rem;
+}
+.bazi-full .k{color:var(--text2);letter-spacing:1px;}
+.bazi-full .v{
+  color:var(--gold);font-weight:700;letter-spacing:2px;
+  font-family:'Songti SC',serif;
+}
+
+.oil-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;}
+.oil-card{
+  background:var(--card2);border-radius:10px;padding:14px;
+  text-align:center;border:1px solid var(--border);
+}
+.oil-card .num{font-size:1.3rem;font-weight:700;color:var(--accent);}
+.oil-card .name{font-size:.75rem;color:var(--text2);margin-top:4px;}
+
+.gold-main{
+  background:linear-gradient(135deg,#2a2010,#1a1d28);
+  border-radius:12px;padding:20px;text-align:center;
+  border:1px solid #3a3020;margin-bottom:14px;
+}
+.gold-main .label{font-size:.82rem;color:#d4a017;margin-bottom:6px;}
+.gold-main .price{font-size:2.2rem;font-weight:800;color:var(--gold);}
+.gold-main .price small{font-size:1rem;font-weight:400;color:var(--text2);margin-left:4px;}
+.gold-main .range{font-size:.78rem;color:var(--text2);margin-top:8px;}
+.gold-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;}
+.gold-card{
+  background:var(--card2);border-radius:10px;padding:14px;
+  border:1px solid var(--border);
+}
+.gold-card .row{
+  display:flex;justify-content:space-between;
+  font-size:.83rem;padding:5px 0;border-bottom:1px dashed var(--border);
+}
+.gold-card .row:last-child{border-bottom:none;}
+.gold-card .row .k{color:var(--text2);}
+.gold-card .row .v{font-weight:600;}
+
+.ip-card{
+  background:var(--card2);border-radius:12px;padding:24px;
+  border:1px solid var(--border);text-align:center;
+}
+.ip-card .ip-val{
+  font-size:1.8rem;font-weight:800;color:var(--accent);
+  font-family:monospace;letter-spacing:1px;margin-bottom:8px;
+  word-break:break-all;
+}
+.ip-card .ip-loc{font-size:.85rem;color:var(--text2);}
+
+.trans-result{
+  background:var(--card2);border-radius:10px;padding:14px;
+  border:1px solid var(--border);font-size:.9rem;
+  line-height:1.6;min-height:60px;color:var(--text);
+}
+.trans-result .src{color:var(--text2);font-size:.78rem;margin-bottom:4px;}
+.trans-result .tgt{font-size:1.05rem;font-weight:600;}
+.trans-result .pron{color:var(--text2);font-size:.78rem;margin-top:4px;font-style:italic;}
+
+.whois-result{
+  background:var(--card2);border-radius:10px;padding:16px;
+  border:1px solid var(--border);font-size:.82rem;
+}
+.whois-hero{
+  display:flex;align-items:center;gap:12px;
+  padding-bottom:12px;border-bottom:1px solid var(--border);
+  margin-bottom:12px;
+}
+.whois-hero .domain{
+  font-size:1.15rem;font-weight:700;color:var(--text);
+  word-break:break-all;
+}
+.whois-stat-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:8px;
+  margin-bottom:12px;
+}
+.whois-stat{
+  background:var(--card);border-radius:8px;padding:10px;
+  text-align:center;
+}
+.whois-stat .num{
+  font-size:1.3rem;font-weight:800;color:var(--accent);
+  line-height:1.2;
+}
+.whois-stat .num.warn{color:var(--up);}
+.whois-stat .label{font-size:.72rem;color:var(--text2);margin-top:2px;}
+.whois-stat .sub{font-size:.68rem;color:var(--text2);margin-top:4px;}
+.whois-row{
+  display:flex;gap:10px;padding:6px 0;
+  border-bottom:1px dashed var(--border);
+}
+.whois-row:last-child{border-bottom:none;}
+.whois-row .k{color:var(--text2);width:80px;flex-shrink:0;}
+.whois-row .v{color:var(--text);word-break:break-all;flex:1;}
+.whois-status-tag{
+  display:inline-block;padding:2px 8px;border-radius:6px;
+  font-size:.7rem;background:rgba(79,140,255,.1);color:var(--accent);
+  margin:2px 4px 2px 0;
+}
+
+.loading{color:var(--text2);text-align:center;padding:20px;font-size:.85rem;}
+.error{color:var(--up);text-align:center;padding:20px;font-size:.85rem;}
+
+.foot{text-align:center;color:var(--text2);font-size:.75rem;padding:20px 0;}
+
+@media(max-width:600px){
+  .hero h1{font-size:1.3rem;}
+  .hero .subtitle{font-size:.78rem;margin-bottom:16px;}
+  .stats-row{font-size:.72rem;margin-bottom:14px;padding-bottom:14px;}
+  .stats-row .sep{margin:0 8px;}
+  .progress-grid{gap:6px;}
+  .progress-item{padding:10px 4px;}
+  .progress-item .p-label{font-size:.66rem;margin-bottom:8px;}
+  .progress-item .p-pct{font-size:.82rem;}
+  .tab{font-size:.72rem;padding:9px 2px;}
+  .weather-main{flex-direction:column;text-align:center;}
+  .weather-forecast{grid-template-columns:1fr;}
+  .gold-grid{grid-template-columns:1fr;}
+  .search-box{flex-wrap:wrap;}
+  .whois-stat-grid{grid-template-columns:1fr;}
+  .taboo-grid{grid-template-columns:1fr;}
+  .grid-3{grid-template-columns:1fr;}
+  .lunar-hero .lunar-day{font-size:2rem;}
+  .hour-row{flex-direction:column;gap:2px;}
+  .hour-row .h{min-width:auto;}
+  .sizhu-header{grid-template-columns:48px 1fr 1fr;font-size:.62rem;}
+  .sizhu-row{grid-template-columns:48px 1fr 1fr;font-size:.78rem;gap:8px;}
+  .bazi-full{flex-direction:column;gap:8px;align-items:flex-start;}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hero">
+    <h1>🧰 itboy 工具箱</h1>
+    <p class="subtitle">生活 · 农历 · 行情 · 工具</p>
+
+    <div class="stats-row">
+      <span>今年第 <b id="s-day">—</b> 天</span>
+      <span class="sep">·</span>
+      <span>今年第 <b id="s-week">—</b> 周</span>
+      <span class="sep">·</span>
+      <span>本月第 <b id="s-mweek">—</b> 周</span>
+    </div>
+
+    <div class="progress-grid">
+      <div class="progress-item">
+        <div class="p-label">今年</div>
+        <div class="p-bar"><div class="p-fill" id="p-year" style="width:0%"></div></div>
+        <div class="p-pct" id="p-year-pct">—</div>
+      </div>
+      <div class="progress-item">
+        <div class="p-label">本月</div>
+        <div class="p-bar"><div class="p-fill" id="p-month" style="width:0%"></div></div>
+        <div class="p-pct" id="p-month-pct">—</div>
+      </div>
+      <div class="progress-item">
+        <div class="p-label">本周</div>
+        <div class="p-bar"><div class="p-fill" id="p-week" style="width:0%"></div></div>
+        <div class="p-pct" id="p-week-pct">—</div>
+      </div>
+      <div class="progress-item">
+        <div class="p-label">今日</div>
+        <div class="p-bar"><div class="p-fill gold" id="p-day" style="width:0%"></div></div>
+        <div class="p-pct" id="p-day-pct">—</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('life',this)">🌤️ 生活</div>
+    <div class="tab" onclick="switchTab('lunar',this)">📅 农历</div>
+    <div class="tab" onclick="switchTab('finance',this)">💰 行情</div>
+    <div class="tab" onclick="switchTab('tools',this)">🔧 工具</div>
+  </div>
+
+  <div class="panel active" id="panel-life">
+    <div class="block">
+      <h2>今日天气</h2>
+      <div class="search-box">
+        <input type="text" id="weather-city-input" placeholder="☁️ 想查哪儿的天气？输入城市名试试："
+               onkeydown="if(event.key==='Enter' && !document.getElementById('weather-btn').disabled) renderWeather()">
+        <button id="weather-btn" onclick="renderWeather()" disabled>查询</button>
+      </div>
+      <div class="search-tip">
+        试试：
+        <a href="javascript:void(0)" onclick="quickWeather('北京')">北京</a> ·
+        <a href="javascript:void(0)" onclick="quickWeather('上海')">上海</a> ·
+        <a href="javascript:void(0)" onclick="quickWeather('广州')">广州</a> ·
+        <a href="javascript:void(0)" onclick="quickWeather('深圳')">深圳</a>
+      </div>
+      <div id="weather-result"></div>
+    </div>
+
+    <div class="block">
+      <h2>每日 60 秒</h2>
+      <div class="news-list" id="news60">
+        <div class="loading">加载中...</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="panel-lunar">
+    <div id="lunar-content">
+      <div class="loading">加载中...</div>
+    </div>
+  </div>
+
+  <div class="panel" id="panel-finance">
+    <div class="block">
+      <h2>今日油价</h2>
+      <div class="search-box">
+        <input type="text" id="oil-province-input" placeholder="🍜 想吃哪个省的油？输入省份名试试："
+               onkeydown="if(event.key==='Enter' && !document.getElementById('oil-btn').disabled) renderOil()">
+        <button id="oil-btn" onclick="renderOil()" disabled>查询</button>
+      </div>
+      <div class="search-tip">
+        试试：
+        <a href="javascript:void(0)" onclick="quickOil('上海')">上海</a> ·
+        <a href="javascript:void(0)" onclick="quickOil('广东')">广东</a> ·
+        <a href="javascript:void(0)" onclick="quickOil('四川')">四川</a> ·
+        <a href="javascript:void(0)" onclick="quickOil('黑龙江')">黑龙江</a>
+      </div>
+      <div class="oil-grid" id="oil-grid"></div>
+    </div>
+
+    <div class="block">
+      <h2>黄金价格</h2>
+      <div id="gold-result"><div class="loading">加载中...</div></div>
+    </div>
+  </div>
+
+  <div class="panel" id="panel-tools">
+    <div class="block">
+      <h2>公网 IP 地址</h2>
+      <div class="ip-card" id="ip-card"><div class="loading">加载中...</div></div>
+    </div>
+
+    <div class="block">
+      <h2>在线翻译</h2>
+      <div class="search-box">
+        <input type="text" id="trans-text" placeholder="输入要翻译的文字"
+               onkeydown="if(event.key==='Enter' && !document.getElementById('trans-btn').disabled) doTrans()">
+        <select id="trans-to">
+          <option value="zh-CHS">→ 中文</option>
+          <option value="en">→ 英语</option>
+          <option value="ja">→ 日语</option>
+          <option value="ko">→ 韩语</option>
+          <option value="fr">→ 法语</option>
+          <option value="de">→ 德语</option>
+          <option value="es">→ 西班牙语</option>
+          <option value="ru">→ 俄语</option>
+        </select>
+        <button id="trans-btn" onclick="doTrans()" disabled>翻译</button>
+      </div>
+      <div class="trans-result" id="trans-result" style="color:var(--text2);">输入文字后点翻译</div>
+    </div>
+
+    <div class="block">
+      <h2>Whois 域名查询</h2>
+      <div class="search-box">
+        <input type="text" id="whois-input" placeholder="输入域名，如：luolitu.vip"
+               onkeydown="if(event.key==='Enter' && !document.getElementById('whois-btn').disabled) doWhois()">
+        <button id="whois-btn" onclick="doWhois()" disabled>查询</button>
+      </div>
+      <div class="whois-result" id="whois-result" style="color:var(--text2);">输入域名后点查询</div>
+    </div>
+  </div>
+
+  <div class="foot">个人学习项目 · 非商业用途 · 数据仅供参考</div>
+</div>
+
+<script>
+const API_BASE = 'https://api.itboy.pw';
+
+async function api(action, params){
+  if (!navigator.onLine) {
+    throw new Error('NETWORK_OFFLINE');
+  }
+  let url = API_BASE + '?action=' + action;
+  if (params) {
+    for (const k in params) {
+      url += '&' + k + '=' + encodeURIComponent(params[k]);
+    }
+  }
+  const r = await fetch(url);
+  if (!r.ok) throw new Error('HTTP_' + r.status);
+  const j = await r.json();
+  if (j.ret_code) throw new Error('SCF_ERROR');
+  return j;
+}
+
+function errMsg(e){
+  if (e.message === 'NETWORK_OFFLINE') return '当前无网络连接，请检查网络后重试';
+  if (e.message.startsWith('HTTP_')) return '服务器暂时不可用，请稍后重试';
+  if (e.message === 'SCF_ERROR') return '服务异常，请稍后重试';
+  return '加载失败，请稍后重试';
+}
+
+// 内联提示（方案 A）：在结果区显示错误
+function showInlineError(boxId, msg){
+  document.getElementById(boxId).innerHTML = `<div class="error">${msg}</div>`;
+}
+
+function switchTab(name, el){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('panel-'+name).classList.add('active');
+}
+
+// 输入框 -> 按钮状态（方案 B：禁用按钮）
+function bindInput(inputId, btnId){
+  const inp = document.getElementById(inputId);
+  const btn = document.getElementById(btnId);
+  if (!inp || !btn) return;
+  inp.addEventListener('input', () => {
+    btn.disabled = !inp.value.trim();
+  });
+}
+bindInput('weather-city-input', 'weather-btn');
+bindInput('oil-province-input', 'oil-btn');
+bindInput('trans-text', 'trans-btn');
+bindInput('whois-input', 'whois-btn');
+
+// ============ 本地时间进度 ============
+function localProgress(){
+  const d = new Date();
+  const y = d.getFullYear(), m = d.getMonth(), day = d.getDate();
+  const dow = d.getDay() === 0 ? 7 : d.getDay();
+
+  const yearStart = new Date(y, 0, 1);
+  const yearEnd = new Date(y + 1, 0, 1);
+  const yearPct = (d - yearStart) / (yearEnd - yearStart) * 100;
+
+  const monthStart = new Date(y, m, 1);
+  const monthEnd = new Date(y, m + 1, 1);
+  const monthPct = (d - monthStart) / (monthEnd - monthStart) * 100;
+
+  const weekPct = (dow - 1) / 7 * 100;
+  const dayPct = (d.getHours() * 3600 + d.getMinutes() * 60 + d.getSeconds()) / 86400 * 100;
+
+  const dayOfYear = Math.floor((d - yearStart) / 86400000) + 1;
+  const weekOfYear = Math.ceil((dayOfYear + yearStart.getDay()) / 7);
+  const weekOfMonth = Math.ceil(day / 7);
+
+  applyProgress({
+    year: yearPct, month: monthPct, week: weekPct, day: dayPct,
+    dayOfYear, weekOfYear, weekOfMonth
+  });
+}
+
+function applyProgress(p){
+  document.getElementById('p-year').style.width = p.year + '%';
+  document.getElementById('p-month').style.width = p.month + '%';
+  document.getElementById('p-week').style.width = p.week + '%';
+  document.getElementById('p-day').style.width = p.day + '%';
+
+  document.getElementById('p-year-pct').textContent = p.year.toFixed(1) + '%';
+  document.getElementById('p-month-pct').textContent = p.month.toFixed(1) + '%';
+  document.getElementById('p-week-pct').textContent = p.week.toFixed(1) + '%';
+  document.getElementById('p-day-pct').textContent = p.day.toFixed(1) + '%';
+
+  document.getElementById('s-day').textContent = p.dayOfYear;
+  document.getElementById('s-week').textContent = p.weekOfYear;
+  document.getElementById('s-mweek').textContent = p.weekOfMonth;
+}
+localProgress();
+
+// ============ 农历 ============
+async function loadLunar(){
+  const content = document.getElementById('lunar-content');
+  try {
+    const j = await api('lunar');
+    if (j.code !== 200 || !j.data) {
+      content.innerHTML = `<div class="error">加载失败，请稍后重试</div>`;
+      return;
+    }
+    renderLunar(j.data);
+
+    const stats = j.data.stats || {};
+    const pct = stats.percents || {};
+    if (pct.year !== undefined) {
+      applyProgress({
+        year: (pct.year || 0) * 100,
+        month: (pct.month || 0) * 100,
+        week: (pct.week || 0) * 100,
+        day: (pct.day || 0) * 100,
+        dayOfYear: stats.day_of_year || '—',
+        weekOfYear: stats.week_of_year || '—',
+        weekOfMonth: stats.week_of_month || '—'
+      });
+    }
+  } catch(e) {
+    content.innerHTML = `<div class="error">${errMsg(e)}</div>`;
+  }
+}
+
+function renderLunar(d){
+  const lunar = d.lunar || {};
+  const term = d.term || {};
+  const zodiac = d.zodiac || {};
+  const sixty = d.sixty_cycle || {};
+  const phase = d.phase || {};
+  const constellation = d.constellation || {};
+  const taboo = d.taboo || {};
+  const nayin = d.nayin || {};
+  const fortune = d.fortune || {};
+  const festival = d.festival || {};
+  const stage = term.stage || {};
+  const dayTaboo = taboo.day || {};
+
+  let html = '';
+
+  const lunarDayStr = `${lunar.month || ''}月${lunar.day || ''}`;
+  const lunarYearStr = lunar.year && zodiac.year
+    ? `${lunar.year}${zodiac.year}年`
+    : (lunar.year ? `${lunar.year}年` : '');
+
+  html += `
+    <div class="lunar-hero">
+      <div class="lunar-day">${lunarDayStr}</div>
+      <div class="lunar-year">${lunarYearStr}</div>
+    </div>
+  `;
+
+  html += `
+    <div class="block" style="margin-top:16px;">
+      <h2>节气 · 月相 · 星座</h2>
+      <div class="grid-3">
+        <div class="item">
+          <div class="emoji">🌾</div>
+          <div class="label">当前节气</div>
+          <div class="val">${stage.name || '—'}</div>
+        </div>
+        <div class="item">
+          <div class="emoji">🌙</div>
+          <div class="label">月相</div>
+          <div class="val">${phase.name || '—'}</div>
+        </div>
+        <div class="item">
+          <div class="emoji">✨</div>
+          <div class="label">星座</div>
+          <div class="val">${constellation.name || '—'}</div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  const festivalStr = festival.both_desc || festival.solar || festival.lunar || '';
+  if (festivalStr) {
+    html += `
+      <div class="block">
+        <h2>今日节日</h2>
+        <div class="festival-bar">
+          <span class="emoji">🎉</span><span class="text">${festivalStr}</span>
+        </div>
+      </div>
+    `;
+  }
+
+  if (dayTaboo.recommends || dayTaboo.avoids) {
+    html += `
+      <div class="block">
+        <h2>今日宜忌</h2>
+        <div class="taboo-grid">
+          <div class="taboo-card yes">
+            <div class="title">✓ 宜</div>
+            <div class="content">${dayTaboo.recommends || '—'}</div>
+          </div>
+          <div class="taboo-card no">
+            <div class="title">✕ 忌</div>
+            <div class="content">${dayTaboo.avoids || '—'}</div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  const hours = taboo.hours || [];
+  if (hours.length) {
+    const hoursHtml = hours.map(h => `
+      <div class="hour-row">
+        <div class="h">${h.hour || ''}</div>
+        <div class="v">宜：${h.recommends || '—'} ｜ 忌：${h.avoids || '—'}</div>
+      </div>
+    `).join('');
+    html += `
+      <div class="block">
+        <h2>时辰宜忌</h2>
+        <div class="hours-list">${hoursHtml}</div>
+      </div>
+    `;
+  }
+
+  if (fortune.today_luck || fortune.career || fortune.money || fortune.love) {
+    html += `
+      <div class="block">
+        <h2>今日运势</h2>
+        ${fortune.today_luck ? `<div class="fortune-row"><span class="k">总体</span><span class="v" style="color:var(--gold);">${fortune.today_luck}</span></div>` : ''}
+        ${fortune.career ? `<div class="fortune-row"><span class="k">事业</span><span class="v">${fortune.career}</span></div>` : ''}
+        ${fortune.money ? `<div class="fortune-row"><span class="k">财运</span><span class="v">${fortune.money}</span></div>` : ''}
+        ${fortune.love ? `<div class="fortune-row"><span class="k">爱情</span><span class="v">${fortune.love}</span></div>` : ''}
+      </div>
+    `;
+  }
+
+  const yearName  = (sixty.year  && sixty.year.name)  || '';
+  const monthName = (sixty.month && sixty.month.name) || '';
+  const dayName   = (sixty.day   && sixty.day.name)   || '';
+  const hourName  = (sixty.hour  && sixty.hour.name)  || '';
+  const baZiStr = [yearName, monthName, dayName, hourName].filter(Boolean).join(' ') || '—';
+
+  const yearNY  = nayin.year  || '';
+  const monthNY = nayin.month || '';
+  const dayNY   = nayin.day   || '';
+  const hourNY  = nayin.hour  || '';
+
+  html += `
+    <div class="block">
+      <h2>四柱 · 八字 · 纳音</h2>
+      <div class="sizhu-header">
+        <span>柱</span>
+        <span>干支</span>
+        <span>纳音</span>
+      </div>
+      <div class="sizhu-row">
+        <span class="label">年柱</span>
+        <span class="gz">${yearName || '—'}</span>
+        <span class="ny">${yearNY || '—'}</span>
+      </div>
+      <div class="sizhu-row">
+        <span class="label">月柱</span>
+        <span class="gz">${monthName || '—'}</span>
+        <span class="ny">${monthNY || '—'}</span>
+      </div>
+      <div class="sizhu-row">
+        <span class="label">日柱</span>
+        <span class="gz">${dayName || '—'}</span>
+        <span class="ny">${dayNY || '—'}</span>
+      </div>
+      <div class="sizhu-row">
+        <span class="label">时柱</span>
+        <span class="gz">${hourName || '—'}</span>
+        <span class="ny">${hourNY || '—'}</span>
+      </div>
+      <div class="bazi-full">
+        <span class="k">八字全称</span>
+        <span class="v">${baZiStr}</span>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('lunar-content').innerHTML = html;
+}
+
+// ============ 天气 ============
+function quickWeather(city){
+  document.getElementById('weather-city-input').value = city;
+  document.getElementById('weather-btn').disabled = false;
+  renderWeather();
+}
+
+async function renderWeather(){
+  const city = document.getElementById('weather-city-input').value.trim();
+  const box = document.getElementById('weather-result');
+  const btn = document.getElementById('weather-btn');
+
+  // 方案 A：内联提示（兜底）
+  if (!city) { showInlineError('weather-result', '请输入城市名'); return; }
+  // 方案 B：防重复提交
+  if (btn.disabled) return;
+
+  btn.disabled = true;
+  box.innerHTML = '<div class="loading">加载中...</div>';
+
+  try {
+    const j = await api('weather', { city });
+    const now = j.now || {};
+    const loc = now.location || {};
+    const w = now.weather || {};
+    const fc = (j.forecast && j.forecast.daily_forecast) || [];
+
+    const fcHtml = fc.slice(0, 3).map((f, i) => {
+      const dayLabel = i === 0 ? '今天' : (i === 1 ? '明天' : '后天');
+      const icon = f.day_weather_icon
+        ? `<img src="${f.day_weather_icon}" onerror="this.style.display='none'">`
+        : '☀️';
+      return `
+        <div class="fc">
+          <div class="day">${dayLabel}</div>
+          <div class="ico">${icon}</div>
+          <b>${f.min_temperature}° / ${f.max_temperature}°</b>
+        </div>
+      `;
+    }).join('');
+
+    const mainIcon = w.weather_icon
+      ? `<img src="${w.weather_icon}" onerror="this.style.display='none'">`
+      : '☀️';
+
+    box.innerHTML = `
+      <div class="weather-card">
+        <div class="weather-main">
+          <div class="weather-left">
+            <div class="city">📍 ${loc.name || city}</div>
+            <div class="temp">${w.temperature || '--'}<small>°C</small></div>
+            <div class="desc">${w.condition || ''} · 湿度 ${w.humidity || '--'}% · ${w.wind_direction || ''} ${w.wind_power || ''}级</div>
+          </div>
+          <div class="weather-right">${mainIcon}</div>
+        </div>
+        <div class="weather-forecast">${fcHtml}</div>
+      </div>
+    `;
+  } catch(e) {
+    box.innerHTML = `<div class="error">${errMsg(e)}</div>`;
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+// ============ 60秒 ============
+async function loadNews60(){
+  const box = document.getElementById('news60');
+  try {
+    const j = await api('news60');
+    const list = (j.data && j.data.news) || [];
+    if (!list.length) {
+      box.innerHTML = '<div class="loading">暂无数据</div>';
+      return;
+    }
+    box.innerHTML = list.map((text, i) =>
+      `<div class="news-item"><div class="idx">${i+1}</div><div class="text">${text}</div></div>`
+    ).join('');
+  } catch(e) {
+    box.innerHTML = `<div class="error">${errMsg(e)}</div>`;
+  }
+}
+
+// ============ 油价 ============
+function quickOil(province){
+  document.getElementById('oil-province-input').value = province;
+  document.getElementById('oil-btn').disabled = false;
+  renderOil();
+}
+
+async function renderOil(){
+  const province = document.getElementById('oil-province-input').value.trim();
+  const grid = document.getElementById('oil-grid');
+  const btn = document.getElementById('oil-btn');
+
+  if (!province) { showInlineError('oil-grid', '请输入省份名'); return; }
+  if (btn.disabled) return;
+
+  btn.disabled = true;
+  grid.innerHTML = '<div class="loading" style="grid-column:1/-1;">加载中...</div>';
+
+  try {
+    const j = await api('oil', { region: province });
+    const items = (j.data && j.data.items) || [];
+    if (!items.length) {
+      grid.innerHTML = `<div class="error" style="grid-column:1/-1;">未找到 ${province} 的油价数据</div>`;
+      return;
+    }
+    grid.innerHTML = items.map(it => `
+      <div class="oil-card">
+        <div class="num">${it.price}</div>
+        <div class="name">${it.name}</div>
+      </div>
+    `).join('');
+  } catch(e) {
+    grid.innerHTML = `<div class="error" style="grid-column:1/-1;">${errMsg(e)}</div>`;
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+// ============ 黄金 ============
+async function loadGold(){
+  const box = document.getElementById('gold-result');
+  try {
+    const j = await api('gold');
+    const d = j.data || {};
+    const metals = d.metals || [];
+    if (!metals.length) {
+      box.innerHTML = '<div class="error">暂无数据</div>';
+      return;
+    }
+    const first = metals[0];
+    const rows = metals.slice(1, 7).map(m => `
+      <div class="row"><span class="k">${m.name}</span><span class="v">${m.sell_price} ${m.unit || ''}</span></div>
+    `).join('');
+    box.innerHTML = `
+      <div class="gold-main">
+        <div class="label">${first.name} · ${first.unit || '元/克'}</div>
+        <div class="price">${first.sell_price}<small>${first.unit || ''}</small></div>
+        <div class="range">最高 ${first.high_price} &nbsp;|&nbsp; 最低 ${first.low_price}</div>
+      </div>
+      <div class="gold-grid">
+        <div class="gold-card">${rows || '<div style="color:#8b90a0;">暂无其他品种</div>'}</div>
+      </div>
+    `;
+  } catch(e) {
+    box.innerHTML = `<div class="error">${errMsg(e)}</div>`;
+  }
+}
+
+// ============ 公网 IP ============
+async function loadIP(){
+  const box = document.getElementById('ip-card');
+  try {
+    const j = await api('ip');
+    const d = j.data || {};
+    box.innerHTML = `
+      <div class="ip-val">${d.ip || '--'}</div>
+      <div class="ip-loc">${[d.country, d.province, d.city, d.isp].filter(Boolean).join(' · ')}</div>
+    `;
+  } catch(e) {
+    box.innerHTML = `<div class="error">${errMsg(e)}</div>`;
+  }
+}
+
+// ============ 翻译 ============
+async function doTrans(){
+  const text = document.getElementById('trans-text').value.trim();
+  const to = document.getElementById('trans-to').value;
+  const box = document.getElementById('trans-result');
+  const btn = document.getElementById('trans-btn');
+
+  if (!text) { showInlineError('trans-result', '请输入文字'); return; }
+  if (btn.disabled) return;
+
+  btn.disabled = true;
+  box.innerHTML = '<div class="loading">翻译中...</div>';
+  try {
+    const j = await api('translate', { text, to });
+    const d = j.data || {};
+    const s = d.source || {}, t = d.target || {};
+    box.innerHTML = `
+      <div class="src">${s.type_desc || ''} · ${s.text || ''}</div>
+      <div class="tgt">${t.text || ''}</div>
+      ${t.pronounce ? `<div class="pron">[${t.pronounce}]</div>` : ''}
+    `;
+  } catch(e) {
+    box.innerHTML = `<div class="error">${errMsg(e)}</div>`;
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+// ============ Whois ============
+function translateWhoisStatus(list){
+  const map = {
+    'client transfer prohibited': '禁止转移',
+    'client delete prohibited': '禁止删除',
+    'client update prohibited': '禁止更新',
+    'server transfer prohibited': '服务器禁止转移',
+    'server delete prohibited': '服务器禁止删除',
+    'server update prohibited': '服务器禁止更新',
+    'client hold': '客户保留',
+    'server hold': '服务器保留',
+    'ok': '正常',
+    'active': '活跃'
+  };
+  return list.map(s => {
+    const lower = s.toLowerCase().trim();
+    return `<span class="whois-status-tag">${map[lower] || s}</span>`;
+  }).join('');
+}
+
+function calcYears(fromStr, toDate){
+  const d = new Date(String(fromStr).replace(/\//g, '-'));
+  if (isNaN(d)) return null;
+  return (toDate - d) / (365.25 * 24 * 3600 * 1000);
+}
+
+async function doWhois(){
+  const domain = document.getElementById('whois-input').value.trim();
+  const box = document.getElementById('whois-result');
+  const btn = document.getElementById('whois-btn');
+
+  if (!domain) { showInlineError('whois-result', '请输入域名'); return; }
+  if (btn.disabled) return;
+
+  btn.disabled = true;
+  box.innerHTML = '<div class="loading">查询中...</div>';
+  try {
+    const j = await api('whois', { domain });
+    const d = j.data || {};
+    const status = Array.isArray(d.status) ? d.status : (d.status ? [d.status] : []);
+    const ns = Array.isArray(d.nameservers) ? d.nameservers : (d.nameservers ? [d.nameservers] : []);
+
+    const now = new Date();
+    const age = d.created ? calcYears(d.created, now) : null;
+    const left = d.expires ? calcYears(now.toISOString(), new Date(String(d.expires).replace(/\//g, '-'))) : null;
+
+    const ageTxt = age !== null ? (age >= 1 ? age.toFixed(1) + ' 年' : '不足 1 年') : '—';
+    const leftTxt = left !== null ? (left >= 1 ? left.toFixed(1) + ' 年' : '不足 1 年') : '—';
+    const leftWarn = left !== null && left < 1 ? 'warn' : '';
+
+    box.innerHTML = `
+      <div class="whois-hero">
+        <div class="domain">${d.domain || domain}</div>
+      </div>
+      <div class="whois-stat-grid">
+        <div class="whois-stat">
+          <div class="num">${ageTxt}</div>
+          <div class="label">已注册</div>
+          <div class="sub">${d.created || ''}</div>
+        </div>
+        <div class="whois-stat">
+          <div class="num ${leftWarn}">${leftTxt}</div>
+          <div class="label">距到期</div>
+          <div class="sub">${d.expires || ''}</div>
+        </div>
+      </div>
+      <div class="whois-row"><span class="k">注册商</span><span class="v">${d.registrar || '—'}</span></div>
+      <div class="whois-row"><span class="k">更新时间</span><span class="v">${d.updated || '—'}</span></div>
+      <div class="whois-row"><span class="k">DNS</span><span class="v">${ns.join(' / ') || '—'}</span></div>
+      ${status.length ? `<div class="whois-row"><span class="k">域名状态</span><span class="v">${translateWhoisStatus(status)}</span></div>` : ''}
+    `;
+  } catch(e) {
+    box.innerHTML = `<div class="error">${errMsg(e)}</div>`;
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+// ============ 初始化 ============
+window.addEventListener('DOMContentLoaded', () => {
+  loadLunar();
+  loadNews60();
+  loadGold();
+  loadIP();
+});
+</script>
+</body>
+</html>
